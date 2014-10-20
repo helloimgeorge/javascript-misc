@@ -17,6 +17,11 @@ function onReady() {
 
     //add an event listener for the 'submit' event passing onSubmit as the event handler function
     ageForm.addEventListener('submit', onSubmit);
+
+    if (window.localStorage) {
+        ageForm.elements['name'].value = window.localStorage.getItem('defaultName');
+    }
+
     //add an event listener for the 'click' event on the exit button
     //for this one we will use an inline anonymous function so that you can get used to those
     var exitButton = document.getElementById('exit-button');
@@ -30,6 +35,14 @@ function onReady() {
     resetButton.addEventListener('click', function() {
        document.getElementById('age-message').style.display = 'none';
     });
+
+    var nameInput = ageForm.elements['name'];
+    nameInput.addEventListener('change', function() {
+        if (window.localStorage) {
+            window.localStorage.setItem('defaultName', this.value);
+        }
+    });
+
 } //onReady()
 
 //call onReady() when the DOMContentLoaded event is raised
@@ -94,8 +107,22 @@ function calculateAge(dob) {
     if (!dob) {
         throw new Error('Please tell me when you were born!');
     }
-    //calculate the person's age based on the date-of-birth
 
+    /*
+    //calculate the person's age based on the date-of-birth
+    var today = new Date();
+    dob = new Date(dob);
+    var yearsDiff = today.getFullYear() - dob.getUTCFullYear();
+    var monthsDiff = today.getMonth() - dob.getUTCMonth();
+    var daysDiff = today.getDate() - dob.getUTCDate();
+
+    if (monthsDiff < 0 || (0 == monthsDiff && daysDiff < 0)) {
+        yearsDiff--;
+    }
+
+    return yearsDiff;
+    */
+    return moment().diff(dob, 'years');
 
 } //calculateAge()
 
@@ -107,8 +134,13 @@ function calculateAge(dob) {
  *   age - [number or string] age of person
  * */
 function displayAge(name, age) {
+    var nameRegEx = new RegExp('^\\D+$');
+    if (!nameRegEx.test(name)) {
+        throw new Error('Your name cannot contain numbers!');
+    }
+
     //use displayMessage() to display the name and age
-    displayMessage(name + ', you are' + age + ' years old!');
+    displayMessage(name + ', you are ' + age + ' years old!');
 
 } //displayAge()
 
